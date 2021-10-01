@@ -10,6 +10,8 @@ const (
 	FodselsnrLength   = 11
 )
 
+// Check checks if a norwegian national identity number (NIN) is legal.
+// This function does not check if D-, H-, FH- or S-numbers are legal.
 func Check(fnr string) bool {
 	return Sjekk(fnr)
 }
