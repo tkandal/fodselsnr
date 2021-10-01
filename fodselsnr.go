@@ -5,7 +5,9 @@ import (
 )
 
 const (
-	FodselsnrLength = 11
+	IllegalControlSum = 10
+	ZeroControlSum    = 11 // if the result becomes 11 - 0 => set to 0
+	FodselsnrLength   = 11
 )
 
 func Check(fnr string) bool {
@@ -72,18 +74,18 @@ func Sjekk(fnr string) bool {
 	}
 
 	kalk1 := 11 - ((3*day1 + 7*day2 + 6*month1 + month2 + 8*aar1 + 9*aar2 + 4*i1 + 5*i2 + 2*i3) % 11)
-	if kalk1 == 10 {
+	if kalk1 == IllegalControlSum {
 		return false
 	}
-	if kalk1 == 11 {
+	if kalk1 == ZeroControlSum {
 		kalk1 = 0
 	}
 
 	kalk2 := 11 - ((5*day1 + 4*day2 + 3*month1 + 2*month2 + 7*aar1 + 6*aar2 + 5*i1 + 4*i2 + 3*i3 + 2*kalk1) % 11)
-	if kalk2 == 10 {
+	if kalk2 == IllegalControlSum {
 		return false
 	}
-	if kalk2 == 11 {
+	if kalk2 == ZeroControlSum {
 		kalk2 = 0
 	}
 	return kontroll1 == kalk1 && kontroll2 == kalk2
