@@ -5,7 +5,6 @@
 // with the format ddmmyy, and the last 5 are used for control and gender, on the format
 // nngcc. nn is calculated from bithdate, g is gender, 0,2,4,6,8 for female and 1,3,5,7,9 for male,
 // and lastly cc is the checksum for all the 9 proceeding digits.
-
 package fodselsnr
 
 import (
