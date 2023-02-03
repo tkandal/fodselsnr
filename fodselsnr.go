@@ -29,10 +29,10 @@ func Check(fnr string) bool {
 	return Sjekk(fnr)
 }
 
-// IsSNumber check if the given NIN is a so-called S-number.  A legal S-number
+// isSNumber check if the given NIN is a so-called S-number.  A legal S-number
 // has legal day (day > 0 and day < 32) and month + 50 (month > 50 and month < 63)
 // and the sum of the 7. and 8. digit > 9 and < 15
-func IsSNumber(fnr string) bool {
+func isSNumber(fnr string) bool {
 	if len(fnr) != FodselsnrLength {
 		return false
 	}
@@ -61,10 +61,10 @@ func IsSNumber(fnr string) bool {
 	return legal
 }
 
-// IsDNumber check if the given NIN is a so-called D-number.  A legal D-number
+// isDNumber check if the given NIN is a so-called D-number.  A legal D-number
 // has day + 40 (day > 40 and day < 72) and legal month (month > 0 and month < 13)
 // and the 7. digit == 0
-func IsDNumber(fnr string) bool {
+func isDNumber(fnr string) bool {
 	if len(fnr) != FodselsnrLength {
 		return false
 	}
@@ -92,10 +92,10 @@ func IsDNumber(fnr string) bool {
 	return legal
 }
 
-// IsFSNumber check if the given NIN is a so-called FS-number. A legal FS-number
+// isFSNumber check if the given NIN is a so-called FS-number. A legal FS-number
 // has legal day (day > 0 and day < 32) and month + 50 (month > 50 and month < 63)
 // and the sum of the last 5 digit > 89999.
-func IsFSNumber(fnr string) bool {
+func isFSNumber(fnr string) bool {
 	if len(fnr) != FodselsnrLength {
 		return false
 	}
@@ -122,10 +122,10 @@ func IsFSNumber(fnr string) bool {
 	return legal
 }
 
-// IsRegular check if a given NIN is a regular NIN.  A regular NIN should
+// isRegular check if a given NIN is a regular NIN.  A regular NIN should
 // have a legal day (day > 0 and day < 32) and a legal month (month > 0 and month < 13)
 // and a year in the set [00 - 99].
-func IsRegular(fnr string) bool {
+func isRegular(fnr string) bool {
 	day, err := strconv.Atoi(fnr[0:2])
 	if err != nil {
 		return false
@@ -161,8 +161,8 @@ func Sjekk(fnr string) bool {
 		return false
 	}
 
-	if !IsRegular(tmp) {
-		if !IsSNumber(tmp) && !IsDNumber(tmp) && !IsFSNumber(tmp) {
+	if !isRegular(tmp) {
+		if !isSNumber(tmp) && !isDNumber(tmp) && !isFSNumber(tmp) {
 			return false
 		}
 	}
