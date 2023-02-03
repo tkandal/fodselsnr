@@ -31,7 +31,7 @@ func init() {
 	ninMatch = regexp.MustCompile("^[\\d]{11}$")
 }
 
-// Sjekk checks if a norwegian national identity number (NIN) is legal.
+// Check checks if a norwegian national identity number (NIN) is legal.
 // This function also checks if the NIN is a so-called legal S-, D- or FS-number.
 // Returns true if the given NIN is either a regular NIN, an S-number, a D-number or an FS-number; false otherwise.
 func Check(fnr string) bool {
@@ -92,7 +92,7 @@ func isFSNumber(fnr string) bool {
 	if err != nil {
 		return false
 	}
-	legal := day < 32 && (month > 50 && month < 63) && persNr > 89999
+	legal := (day > 0 && day < 32) && (month > 50 && month < 63) && persNr > 89999
 	if legal {
 		legal = legal && parseIsLegal(calcYear(year), month-50, year)
 	}
