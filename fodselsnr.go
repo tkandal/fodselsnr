@@ -49,6 +49,15 @@ func isSNumber(fnr string) bool {
 		return false
 	}
 
+	idNumber, err := strconv.Atoi(fnr[6:9])
+	if err != nil {
+		return false
+	}
+	bornYear := calcYear(year)
+	if !isCorrectIdNumber(bornYear, idNumber) {
+		return false
+	}
+
 	nr, err := strconv.Atoi(fnr[6:8])
 	if err != nil {
 		return false
@@ -56,7 +65,7 @@ func isSNumber(fnr string) bool {
 
 	legal := (day > 0 && day < 32) && (month > 50 && month < 63) && (nr > 9 && nr < 15)
 	if legal {
-		legal = legal && parseIsLegal(calcYear(year), month-50, day)
+		legal = legal && parseIsLegal(bornYear, month-50, day)
 	}
 	return legal
 }
@@ -70,13 +79,23 @@ func isDNumber(fnr string) bool {
 		return false
 	}
 
+	idNumber, err := strconv.Atoi(fnr[6:9])
+	if err != nil {
+		return false
+	}
+	bornYear := calcYear(year)
+	if !isCorrectIdNumber(bornYear, idNumber) {
+		return false
+	}
+
 	nr, err := strconv.Atoi(fnr[6:7])
 	if err != nil {
 		return false
 	}
+
 	legal := (day > 40 && day < 72) && (month > 0 && month < 13) && nr == 0
 	if legal {
-		legal = legal && parseIsLegal(calcYear(year), month, day-40)
+		legal = legal && parseIsLegal(bornYear, month, day-40)
 	}
 	return legal
 }
@@ -96,7 +115,7 @@ func isFSNumber(fnr string) bool {
 	}
 	legal := (day > 0 && day < 32) && (month > 50 && month < 63) && persNr > 89999
 	if legal {
-		legal = legal && parseIsLegal(calcYear(year), month-50, year)
+		legal = legal && parseIsLegal(calcYear(year), month-50, day)
 	}
 	return legal
 }
@@ -110,9 +129,18 @@ func isRegular(fnr string) bool {
 		return false
 	}
 
+	idNumber, err := strconv.Atoi(fnr[6:9])
+	if err != nil {
+		return false
+	}
+	bornYear := calcYear(year)
+	if !isCorrectIdNumber(bornYear, idNumber) {
+		return false
+	}
+
 	legal := (day > 0 && day < 32) && (month > 0 && month < 13)
 	if legal {
-		legal = legal && parseIsLegal(calcYear(year), month, day)
+		legal = legal && parseIsLegal(bornYear, month, day)
 	}
 	return legal
 }
@@ -200,6 +228,23 @@ func Sjekk(fnr string) bool {
 	return kontroll1 == kalk1 && kontroll2 == kalk2
 }
 
+// 500–999 omfatter personer født i perioden 2000–2039.
+// 000–499 omfatter personer født i perioden 1900–1999.
+// 900–999 omfatter personer født i perioden 1940–1999.
+// 500–749 omfatter personer født i perioden 1854–1899.
+func isCorrectIdNumber(bornYear int, id int) bool {
+	if bornYear > 1999 && bornYear < 2040 {
+		return id >= 500 && id <= 999
+	}
+	if bornYear > 1899 && bornYear < 2000 {
+		return (id >= 0 && id <= 499) || (id >= 900 && id <= 999)
+	}
+	if bornYear > 1853 && bornYear < 1900 {
+		return id >= 500 && id <= 749
+	}
+	return false
+}
+
 func parseDayMonthYear(fnr string) (int, int, int, error) {
 	day, err := strconv.Atoi(fnr[0:2])
 	if err != nil {
@@ -217,11 +262,11 @@ func parseDayMonthYear(fnr string) (int, int, int, error) {
 }
 
 func calcYear(year int) int {
-	// Go uses 69 as pivot for choosing 2000 or 1900
-	if year < 69 {
-		return year + 2000
+	fnrYear := year + 2000
+	if fnrYear > time.Now().Year() {
+		fnrYear -= 100
 	}
-	return year + 1900
+	return fnrYear
 }
 
 func parseIsLegal(year int, month int, day int) bool {
