@@ -15,11 +15,14 @@ import (
 )
 
 const (
+	// IllegalControlSum is an illegal control sum.
 	IllegalControlSum = 10
-	ZeroControlSum    = 11 // if the result becomes 11 - 0 => set to 0
-	FodselsnrLength   = 11
-	printFormat       = "%d-%02d-%02d"
-	parseFormat       = "2006-01-02"
+	// ZeroControlSum is the same as 0.
+	ZeroControlSum = 11 // if the result becomes 11 - 0 => set to 0
+	// FodselsnrLength is det legal length of NIN.
+	FodselsnrLength = 11
+	printFormat     = "%d-%02d-%02d"
+	parseFormat     = "2006-01-02"
 )
 
 var (

@@ -10,8 +10,10 @@ import (
 )
 
 var (
+	// ErrIllegalArgument is returned when an illegal argument is used as parameter.
 	ErrIllegalArgument = errors.New("illegal argument")
-	ErrIllegalNIN      = errors.New("nin is illegal")
+	// ErrIllegalNIN is returned when a Norwegian Nation Identity Number (NIN) do not pass the check.
+	ErrIllegalNIN = errors.New("nin is illegal")
 )
 
 func main() {
