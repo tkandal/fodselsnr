@@ -10,25 +10,28 @@ package fodselsnr
 
 import (
 	"fmt"
-	"os"
 	"strconv"
+	"time"
 )
 
 const (
 	IllegalControlSum = 10
 	ZeroControlSum    = 11 // if the result becomes 11 - 0 => set to 0
 	FodselsnrLength   = 11
+	printFormat       = "%d-%02d-%02d"
+	parseFormat       = "2006-01-02"
 )
 
-// Check checks if a norwegian national identity number (NIN) is legal.
-// This function does not check if D-, H-, FH- or S-numbers are legal.
+// Sjekk checks if a norwegian national identity number (NIN) is legal.
+// This function also checks if the NIN is a so-called legal S-, D- or FS-number.
+// Returns true if the given NIN is either a regular NIN, an S-number, a D-number or an FS-number; false otherwise.
 func Check(fnr string) bool {
 	return Sjekk(fnr)
 }
 
 // IsSNumber check if the given NIN is a so-called S-number.  A legal S-number
 // has legal day (day > 0 and day < 32) and month + 50 (month > 50 and month < 63)
-// and the sum of the 7. and 8. digit >= 10 and <= 14
+// and the sum of the 7. and 8. digit > 9 and < 15
 func IsSNumber(fnr string) bool {
 	if len(fnr) != FodselsnrLength {
 		return false
@@ -41,13 +44,19 @@ func IsSNumber(fnr string) bool {
 	if err != nil {
 		return false
 	}
+	year, err := strconv.Atoi(fnr[4:6])
+	if err != nil {
+		return false
+	}
+
 	nr, err := strconv.Atoi(fnr[6:8])
 	if err != nil {
 		return false
 	}
-	legal := (day > 0 && day < 32) && (month > 50 && month < 63) && (nr >= 10 && nr <= 14)
+
+	legal := (day > 0 && day < 32) && (month > 50 && month < 63) && (nr > 9 && nr < 15)
 	if legal {
-		_, _ = fmt.Fprintf(os.Stdout, "%s is legal S-number\n", fnr)
+		legal = legal && parseIsLegal(calcYear(year), month-50, day)
 	}
 	return legal
 }
@@ -67,20 +76,25 @@ func IsDNumber(fnr string) bool {
 	if err != nil {
 		return false
 	}
+	year, err := strconv.Atoi(fnr[4:6])
+	if err != nil {
+		return false
+	}
+
 	nr, err := strconv.Atoi(fnr[6:7])
 	if err != nil {
 		return false
 	}
 	legal := (day > 40 && day < 72) && (month > 0 && month < 13) && nr == 0
 	if legal {
-		_, _ = fmt.Fprintf(os.Stdout, "%s is legal D-number\n", fnr)
+		legal = legal && parseIsLegal(calcYear(year), month, day-40)
 	}
 	return legal
 }
 
 // IsFSNumber check if the given NIN is a so-called FS-number. A legal FS-number
 // has legal day (day > 0 and day < 32) and month + 50 (month > 50 and month < 63)
-// and the sum of the last 5 digit >= 90000
+// and the sum of the last 5 digit > 89999.
 func IsFSNumber(fnr string) bool {
 	if len(fnr) != FodselsnrLength {
 		return false
@@ -93,19 +107,24 @@ func IsFSNumber(fnr string) bool {
 	if err != nil {
 		return false
 	}
+	year, err := strconv.Atoi(fnr[4:6])
+	if err != nil {
+		return false
+	}
 	persNr, err := strconv.Atoi(fnr[6:])
 	if err != nil {
 		return false
 	}
-	legal := day < 32 && (month > 50 && month < 63) && persNr >= 90000
+	legal := day < 32 && (month > 50 && month < 63) && persNr > 89999
 	if legal {
-		_, _ = fmt.Fprintf(os.Stdout, "%s is legal FS-number\n", fnr)
+		legal = legal && parseIsLegal(calcYear(year), month-50, year)
 	}
 	return legal
 }
 
-// IsRegular check if a given NIN is a regular NIN.  A legal NIN should
-// have a legal day (day > 0 and day < 32) and a legal month (month > 0 and month < 13).
+// IsRegular check if a given NIN is a regular NIN.  A regular NIN should
+// have a legal day (day > 0 and day < 32) and a legal month (month > 0 and month < 13)
+// and a year in the set [00 - 99].
 func IsRegular(fnr string) bool {
 	day, err := strconv.Atoi(fnr[0:2])
 	if err != nil {
@@ -115,17 +134,21 @@ func IsRegular(fnr string) bool {
 	if err != nil {
 		return false
 	}
+	year, err := strconv.Atoi(fnr[4:6])
+	if err != nil {
+		return false
+	}
+
 	legal := (day > 0 && day < 32) && (month > 0 && month < 13)
 	if legal {
-		_, _ = fmt.Fprintf(os.Stdout, "%s is a legal NIN", fnr)
+		legal = legal && parseIsLegal(calcYear(year), month, day)
 	}
 	return legal
 }
 
-// 075863 00000
-
 // Sjekk checks if a norwegian national identity number (NIN) is legal.
-// This function also checks if the NIN is a so-called legal S-, D- or FS-number
+// This function also checks if the NIN is a so-called legal S-, D- or FS-number.
+// Returns true if the given NIN is either a regular NIN, an S-number, a D-number or an FS-number; false otherwise.
 func Sjekk(fnr string) bool {
 	if len(fnr) == 0 {
 		return false
@@ -204,4 +227,19 @@ func Sjekk(fnr string) bool {
 		kalk2 = 0
 	}
 	return kontroll1 == kalk1 && kontroll2 == kalk2
+}
+
+func calcYear(year int) int {
+	// Go uses 69 as pivot for choosing 2000 or 1900
+	if year < 69 {
+		return year + 2000
+	}
+	return year + 1900
+}
+
+func parseIsLegal(year int, month int, day int) bool {
+	if _, err := time.Parse(parseFormat, fmt.Sprintf(printFormat, year, month, day)); err != nil {
+		return false
+	}
+	return true
 }
