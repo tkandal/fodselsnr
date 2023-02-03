@@ -3,8 +3,9 @@
 // is a type of NIN that is used in the educational sector in Norway.
 // NIN has the following format, it consists of 11 digit.  The first 6 digits are the birthdate
 // with the format ddmmyy, and the last 5 are used for control and gender, on the format
-// nngcc. nn is calculated from bithdate, g is gender, 0,2,4,6,8 for female and 1,3,5,7,9 for male,
+// nngcc. nn is calculated from birthdate, g is gender, 0,2,4,6,8 for female and 1,3,5,7,9 for male,
 // and lastly cc is the checksum for all the 9 proceeding digits.
+// Ref. https://no.wikipedia.org/wiki/F%C3%B8dselsnummer (in Norwegian).
 package fodselsnr
 
 import (
@@ -33,7 +34,7 @@ func init() {
 	ninMatch = regexp.MustCompile("^[\\d]{11}$")
 }
 
-// Check checks if a norwegian national identity number (NIN) is legal.
+// Check checks if a Norwegian National Identity Number (NIN) is legal.
 // This function also checks if the NIN is a so-called legal S-, D- or FS-number.
 // Returns true if the given NIN is either a regular NIN, an S-number, a D-number or an FS-number; false otherwise.
 func Check(fnr string) bool {
@@ -145,7 +146,7 @@ func isRegular(fnr string) bool {
 	return legal
 }
 
-// Sjekk checks if a norwegian national identity number (NIN) is legal.
+// Sjekk checks if a Norwegian National Identity Number (NIN) is legal.
 // This function also checks if the NIN is a so-called legal S-, D- or FS-number.
 // Returns true if the given NIN is either a regular NIN, an S-number, a D-number or an FS-number; false otherwise.
 func Sjekk(fnr string) bool {
