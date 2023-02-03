@@ -47,7 +47,7 @@ func IsSNumber(fnr string) bool {
 	}
 	legal := (day > 0 && day < 32) && (month > 50 && month < 63) && (nr >= 10 && nr <= 14)
 	if legal {
-		_, _ = fmt.Fprintf(os.Stdout, "%s is legal S-number", fnr)
+		_, _ = fmt.Fprintf(os.Stdout, "%s is legal S-number\n", fnr)
 	}
 	return legal
 }
@@ -73,7 +73,7 @@ func IsDNumber(fnr string) bool {
 	}
 	legal := (day > 40 && day < 72) && (month > 0 && month < 13) && nr == 0
 	if legal {
-		_, _ = fmt.Fprintf(os.Stdout, "%s is legal D-number", fnr)
+		_, _ = fmt.Fprintf(os.Stdout, "%s is legal D-number\n", fnr)
 	}
 	return legal
 }
@@ -99,7 +99,7 @@ func IsFSNumber(fnr string) bool {
 	}
 	legal := day < 32 && (month > 50 && month < 63) && persNr >= 90000
 	if legal {
-		_, _ = fmt.Fprintf(os.Stdout, "%s is legal FS-number", fnr)
+		_, _ = fmt.Fprintf(os.Stdout, "%s is legal FS-number\n", fnr)
 	}
 	return legal
 }
