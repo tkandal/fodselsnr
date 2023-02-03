@@ -1,6 +1,8 @@
 package fodselsnr
 
 import (
+	"fmt"
+	"os"
 	"strconv"
 )
 
@@ -16,10 +18,10 @@ func Check(fnr string) bool {
 	return Sjekk(fnr)
 }
 
-// isSnumber check if the given NIN is a so-called S-number.  A legal S-number
+// IsSNumber check if the given NIN is a so-called S-number.  A legal S-number
 // has legal day (day > 0 and day < 32) and month + 50 (month > 50 and month < 63)
 // and the sum of the 7. and 8. digit >= 10 and <= 14
-func isSnumber(fnr string) bool {
+func IsSNumber(fnr string) bool {
 	day, err := strconv.Atoi(fnr[0:2])
 	if err != nil {
 		return false
@@ -32,13 +34,17 @@ func isSnumber(fnr string) bool {
 	if err != nil {
 		return false
 	}
-	return (day > 0 && day < 32) && (month > 50 && month < 63) && (nr >= 10 && nr <= 14)
+	legal := (day > 0 && day < 32) && (month > 50 && month < 63) && (nr >= 10 && nr <= 14)
+	if legal {
+		_, _ = fmt.Fprintf(os.Stdout, "%s is legal S-number", fnr)
+	}
+	return legal
 }
 
-// isDnumber check if the given NIN is a so-called D-number.  A legal D-number
+// IsDNumber check if the given NIN is a so-called D-number.  A legal D-number
 // has day + 40 (day > 40 and day < 72) and legal month (month > 0 and month < 13)
 // and the 7. digit == 0
-func isDnumber(fnr string) bool {
+func IsDNumber(fnr string) bool {
 	day, err := strconv.Atoi(fnr[0:2])
 	if err != nil {
 		return false
@@ -51,13 +57,17 @@ func isDnumber(fnr string) bool {
 	if err != nil {
 		return false
 	}
-	return (day > 40 && day < 72) && (month > 0 && month < 13) && nr == 0
+	legal := (day > 40 && day < 72) && (month > 0 && month < 13) && nr == 0
+	if legal {
+		_, _ = fmt.Fprintf(os.Stdout, "%s is legal D-number", fnr)
+	}
+	return legal
 }
 
-// isFSnumber check if the given NIN is a so-called FS-number. A legal FS-number
+// IsFSNumber check if the given NIN is a so-called FS-number. A legal FS-number
 // has legal day (day > 0 and day < 32) and month + 50 (month > 50 and month < 63)
 // and the sum of the last 5 digit >= 90000
-func isFSnumber(fnr string) bool {
+func IsFSNumber(fnr string) bool {
 	day, err := strconv.Atoi(fnr[0:2])
 	if err != nil {
 		return false
@@ -70,10 +80,16 @@ func isFSnumber(fnr string) bool {
 	if err != nil {
 		return false
 	}
-	return day < 32 && (month > 50 && month < 63) && persNr >= 90000
+	legal := day < 32 && (month > 50 && month < 63) && persNr >= 90000
+	if legal {
+		_, _ = fmt.Fprintf(os.Stdout, "%s is legal FS-number", fnr)
+	}
+	return legal
 }
 
-func isRegular(fnr string) bool {
+// IsRegular check if a given NIN is a regular NIN.  A legal NIN should
+// have a legal day (day > 0 and day < 32) and a legal month (month > 0 and month < 13).
+func IsRegular(fnr string) bool {
 	day, err := strconv.Atoi(fnr[0:2])
 	if err != nil {
 		return false
@@ -82,7 +98,11 @@ func isRegular(fnr string) bool {
 	if err != nil {
 		return false
 	}
-	return day < 32 && month < 13
+	legal := (day > 0 && day < 32) && (month > 0 && month < 13)
+	if legal {
+		_, _ = fmt.Fprintf(os.Stdout, "%s is a legal NIN", fnr)
+	}
+	return legal
 }
 
 // 075863 00000
@@ -101,8 +121,8 @@ func Sjekk(fnr string) bool {
 		return false
 	}
 
-	if !isRegular(tmp) {
-		if !isSnumber(tmp) && !isDnumber(tmp) && !isFSnumber(tmp) {
+	if !IsRegular(tmp) {
+		if !IsSNumber(tmp) && !IsDNumber(tmp) && !IsFSNumber(tmp) {
 			return false
 		}
 	}
