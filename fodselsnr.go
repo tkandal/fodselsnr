@@ -10,6 +10,7 @@ package fodselsnr
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 	"time"
 )
@@ -22,6 +23,14 @@ const (
 	parseFormat       = "2006-01-02"
 )
 
+var (
+	ninMatch *regexp.Regexp
+)
+
+func init() {
+	ninMatch = regexp.MustCompile("^[\\d]{11}$")
+}
+
 // Sjekk checks if a norwegian national identity number (NIN) is legal.
 // This function also checks if the NIN is a so-called legal S-, D- or FS-number.
 // Returns true if the given NIN is either a regular NIN, an S-number, a D-number or an FS-number; false otherwise.
@@ -30,21 +39,10 @@ func Check(fnr string) bool {
 }
 
 // isSNumber check if the given NIN is a so-called S-number.  A legal S-number
-// has legal day (day > 0 and day < 32) and month + 50 (month > 50 and month < 63)
-// and the sum of the 7. and 8. digit > 9 and < 15
+// has legal day (day > 0 and day < 32) and month + 50 (month > 50 and month < 63),
+// year in the set [0-99], and the sum of the 7. and 8. digit > 9 and < 15
 func isSNumber(fnr string) bool {
-	if len(fnr) != FodselsnrLength {
-		return false
-	}
-	day, err := strconv.Atoi(fnr[0:2])
-	if err != nil {
-		return false
-	}
-	month, err := strconv.Atoi(fnr[2:4])
-	if err != nil {
-		return false
-	}
-	year, err := strconv.Atoi(fnr[4:6])
+	day, month, year, err := parseDayMonthYear(fnr)
 	if err != nil {
 		return false
 	}
@@ -62,21 +60,10 @@ func isSNumber(fnr string) bool {
 }
 
 // isDNumber check if the given NIN is a so-called D-number.  A legal D-number
-// has day + 40 (day > 40 and day < 72) and legal month (month > 0 and month < 13)
-// and the 7. digit == 0
+// has day + 40 (day > 40 and day < 72) and legal month (month > 0 and month < 13),
+// year in the set [0-99], and the 7. digit == 0
 func isDNumber(fnr string) bool {
-	if len(fnr) != FodselsnrLength {
-		return false
-	}
-	day, err := strconv.Atoi(fnr[0:2])
-	if err != nil {
-		return false
-	}
-	month, err := strconv.Atoi(fnr[2:4])
-	if err != nil {
-		return false
-	}
-	year, err := strconv.Atoi(fnr[4:6])
+	day, month, year, err := parseDayMonthYear(fnr)
 	if err != nil {
 		return false
 	}
@@ -93,24 +80,14 @@ func isDNumber(fnr string) bool {
 }
 
 // isFSNumber check if the given NIN is a so-called FS-number. A legal FS-number
-// has legal day (day > 0 and day < 32) and month + 50 (month > 50 and month < 63)
-// and the sum of the last 5 digit > 89999.
+// has legal day (day > 0 and day < 32) and month + 50 (month > 50 and month < 63) and
+// year in the set [0-99], and the sum of the last 5 digits > 89999.
 func isFSNumber(fnr string) bool {
-	if len(fnr) != FodselsnrLength {
-		return false
-	}
-	day, err := strconv.Atoi(fnr[0:2])
+	day, month, year, err := parseDayMonthYear(fnr)
 	if err != nil {
 		return false
 	}
-	month, err := strconv.Atoi(fnr[2:4])
-	if err != nil {
-		return false
-	}
-	year, err := strconv.Atoi(fnr[4:6])
-	if err != nil {
-		return false
-	}
+
 	persNr, err := strconv.Atoi(fnr[6:])
 	if err != nil {
 		return false
@@ -126,15 +103,7 @@ func isFSNumber(fnr string) bool {
 // have a legal day (day > 0 and day < 32) and a legal month (month > 0 and month < 13)
 // and a year in the set [00 - 99].
 func isRegular(fnr string) bool {
-	day, err := strconv.Atoi(fnr[0:2])
-	if err != nil {
-		return false
-	}
-	month, err := strconv.Atoi(fnr[2:4])
-	if err != nil {
-		return false
-	}
-	year, err := strconv.Atoi(fnr[4:6])
+	day, month, year, err := parseDayMonthYear(fnr)
 	if err != nil {
 		return false
 	}
@@ -157,7 +126,7 @@ func Sjekk(fnr string) bool {
 	if len(tmp) == (FodselsnrLength - 1) {
 		tmp = "0" + tmp
 	}
-	if len(tmp) != FodselsnrLength {
+	if !ninMatch.Match([]byte(tmp)) {
 		return false
 	}
 
@@ -227,6 +196,22 @@ func Sjekk(fnr string) bool {
 		kalk2 = 0
 	}
 	return kontroll1 == kalk1 && kontroll2 == kalk2
+}
+
+func parseDayMonthYear(fnr string) (int, int, int, error) {
+	day, err := strconv.Atoi(fnr[0:2])
+	if err != nil {
+		return 0, 0, 0, err
+	}
+	month, err := strconv.Atoi(fnr[2:4])
+	if err != nil {
+		return 0, 0, 0, err
+	}
+	year, err := strconv.Atoi(fnr[4:6])
+	if err != nil {
+		return 0, 0, 0, err
+	}
+	return day, month, year, nil
 }
 
 func calcYear(year int) int {
