@@ -54,7 +54,7 @@ func isSNumber(fnr string) bool {
 		return false
 	}
 	bornYear := calcYear(year)
-	if !isCorrectIdNumber(bornYear, idNumber) {
+	if !isCorrectIDNumber(bornYear, idNumber) {
 		return false
 	}
 
@@ -84,7 +84,7 @@ func isDNumber(fnr string) bool {
 		return false
 	}
 	bornYear := calcYear(year)
-	if !isCorrectIdNumber(bornYear, idNumber) {
+	if !isCorrectIDNumber(bornYear, idNumber) {
 		return false
 	}
 
@@ -134,7 +134,7 @@ func isRegular(fnr string) bool {
 		return false
 	}
 	bornYear := calcYear(year)
-	if !isCorrectIdNumber(bornYear, idNumber) {
+	if !isCorrectIDNumber(bornYear, idNumber) {
 		return false
 	}
 
@@ -232,7 +232,7 @@ func Sjekk(fnr string) bool {
 // 000–499 omfatter personer født i perioden 1900–1999.
 // 900–999 omfatter personer født i perioden 1940–1999.
 // 500–749 omfatter personer født i perioden 1854–1899.
-func isCorrectIdNumber(bornYear int, id int) bool {
+func isCorrectIDNumber(bornYear int, id int) bool {
 	if bornYear > 1999 && bornYear < 2040 {
 		return id >= 500 && id <= 999
 	}
