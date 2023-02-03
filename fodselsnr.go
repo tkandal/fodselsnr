@@ -1,3 +1,11 @@
+// Package fodselsnr is a package that check Norwegian National Identity Numbers (NIN).  In addition
+// to checking regular NINs, it should also be able to check so-called S-, D- and FS-numbers.  FS-number
+// is a type of NIN that is used in the educational sector in Norway.
+// NIN has the following format, it consists of 11 digit.  The first 6 digits are the birthdate
+// with the format ddmmyy, and the last 5 are used for control and gender, on the format
+// nngcc. nn is calculated from bithdate, g is gender, 0,2,4,6,8 for female and 1,3,5,7,9 for male,
+// and lastly cc is the checksum for all the 9 proceeding digits.
+
 package fodselsnr
 
 import (
@@ -22,6 +30,9 @@ func Check(fnr string) bool {
 // has legal day (day > 0 and day < 32) and month + 50 (month > 50 and month < 63)
 // and the sum of the 7. and 8. digit >= 10 and <= 14
 func IsSNumber(fnr string) bool {
+	if len(fnr) != FodselsnrLength {
+		return false
+	}
 	day, err := strconv.Atoi(fnr[0:2])
 	if err != nil {
 		return false
@@ -45,6 +56,9 @@ func IsSNumber(fnr string) bool {
 // has day + 40 (day > 40 and day < 72) and legal month (month > 0 and month < 13)
 // and the 7. digit == 0
 func IsDNumber(fnr string) bool {
+	if len(fnr) != FodselsnrLength {
+		return false
+	}
 	day, err := strconv.Atoi(fnr[0:2])
 	if err != nil {
 		return false
@@ -68,6 +82,9 @@ func IsDNumber(fnr string) bool {
 // has legal day (day > 0 and day < 32) and month + 50 (month > 50 and month < 63)
 // and the sum of the last 5 digit >= 90000
 func IsFSNumber(fnr string) bool {
+	if len(fnr) != FodselsnrLength {
+		return false
+	}
 	day, err := strconv.Atoi(fnr[0:2])
 	if err != nil {
 		return false
