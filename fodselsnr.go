@@ -50,12 +50,8 @@ func isSNumber(fnr string) bool {
 		return false
 	}
 
-	idNumber, err := strconv.Atoi(fnr[6:9])
-	if err != nil {
-		return false
-	}
 	bornYear := calcYear(year)
-	if !isCorrectIDNumber(bornYear, idNumber) {
+	if !isCorrectIDNumber(bornYear, fnr) {
 		return false
 	}
 
@@ -80,12 +76,8 @@ func isDNumber(fnr string) bool {
 		return false
 	}
 
-	idNumber, err := strconv.Atoi(fnr[6:9])
-	if err != nil {
-		return false
-	}
 	bornYear := calcYear(year)
-	if !isCorrectIDNumber(bornYear, idNumber) {
+	if !isCorrectIDNumber(bornYear, fnr) {
 		return false
 	}
 
@@ -110,13 +102,18 @@ func isFSNumber(fnr string) bool {
 		return false
 	}
 
+	bornYear := calcYear(year)
+	if !isCorrectIDNumber(bornYear, fnr) {
+		return false
+	}
+
 	persNr, err := strconv.Atoi(fnr[6:])
 	if err != nil {
 		return false
 	}
 	legal := (day > 0 && day < 32) && (month > 50 && month < 63) && persNr > 89999
 	if legal {
-		legal = legal && parseIsLegal(calcYear(year), month-50, day)
+		legal = legal && parseIsLegal(bornYear, month-50, day)
 	}
 	return legal
 }
@@ -130,12 +127,8 @@ func isRegular(fnr string) bool {
 		return false
 	}
 
-	idNumber, err := strconv.Atoi(fnr[6:9])
-	if err != nil {
-		return false
-	}
 	bornYear := calcYear(year)
-	if !isCorrectIDNumber(bornYear, idNumber) {
+	if !isCorrectIDNumber(bornYear, fnr) {
 		return false
 	}
 
@@ -233,15 +226,20 @@ func Sjekk(fnr string) bool {
 // 000–499 omfatter personer født i perioden 1900–1999.
 // 900–999 omfatter personer født i perioden 1940–1999.
 // 500–749 omfatter personer født i perioden 1854–1899.
-func isCorrectIDNumber(bornYear int, id int) bool {
+func isCorrectIDNumber(bornYear int, fnr string) bool {
+	idNumber, err := strconv.Atoi(fnr[6:9])
+	if err != nil {
+		return false
+	}
+
 	if bornYear > 1999 && bornYear < 2040 {
-		return id >= 500 && id <= 999
+		return idNumber >= 500 && idNumber <= 999
 	}
 	if bornYear > 1899 && bornYear < 2000 {
-		return (id >= 0 && id <= 499) || (id >= 900 && id <= 999)
+		return (idNumber >= 0 && idNumber <= 499) || (idNumber >= 900 && idNumber <= 999)
 	}
 	if bornYear > 1853 && bornYear < 1900 {
-		return id >= 500 && id <= 749
+		return idNumber >= 500 && idNumber <= 749
 	}
 	return false
 }
