@@ -51,16 +51,12 @@ func isSNumber(fnr string) bool {
 	}
 
 	bornYear := calcYear(year)
-	if !isCorrectIDNumber(bornYear, fnr) {
-		return false
-	}
-
-	nr, err := strconv.Atoi(fnr[6:8])
+	nr, err := strconv.Atoi(fnr[6:])
 	if err != nil {
 		return false
 	}
 
-	legal := (day > 0 && day < 32) && (month > 50 && month < 63) && (nr > 9 && nr < 15)
+	legal := (day > 0 && day < 32) && (month > 50 && month < 63) && (nr > 9000 && nr < 15000)
 	if legal {
 		legal = legal && parseIsLegal(bornYear, month-50, day)
 	}
@@ -69,7 +65,7 @@ func isSNumber(fnr string) bool {
 
 // isDNumber check if the given NIN is a so-called D-number.  A legal D-number
 // has day + 40 (day > 40 and day < 72) and legal month (month > 0 and month < 13),
-// year in the set [0-99], and the 7. digit == 0
+// year in the set [0-99].
 func isDNumber(fnr string) bool {
 	day, month, year, err := parseDayMonthYear(fnr)
 	if err != nil {
@@ -81,12 +77,7 @@ func isDNumber(fnr string) bool {
 		return false
 	}
 
-	nr, err := strconv.Atoi(fnr[6:7])
-	if err != nil {
-		return false
-	}
-
-	legal := (day > 40 && day < 72) && (month > 0 && month < 13) && nr == 0
+	legal := (day > 40 && day < 72) && (month > 0 && month < 13)
 	if legal {
 		legal = legal && parseIsLegal(bornYear, month, day-40)
 	}
@@ -155,7 +146,7 @@ func Sjekk(fnr string) bool {
 	}
 
 	if !isRegular(tmp) {
-		if !isSNumber(tmp) && !isDNumber(tmp) && !isFSNumber(tmp) {
+		if !isFSNumber(tmp) && !isDNumber(tmp) && !isSNumber(tmp) {
 			return false
 		}
 	}
